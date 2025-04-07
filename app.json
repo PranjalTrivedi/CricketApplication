@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "CricketLive",
+    "slug": "CricketLive",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/CricketIcon.png", 
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+
+    "splash": {
+      "image": "./assets/CricketIcon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": ["fetch"],
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/CricketIcon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+
+    "web": {
+      "favicon": "./assets/CricketIcon.png",
+      "splash": {
+        "image": "./assets/CricketIcon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
+    },
+
+    "assetBundlePatterns": ["**/*"]
+  }
+}
+
