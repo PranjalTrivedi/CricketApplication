@@ -1,366 +1,123 @@
-import { Ionicons } from "@expo/vector-icons";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import {
-  Alert,
-  Animated,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
+  View,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  StyleSheet,
+  Alert,
 } from "react-native";
-import { auth, db } from "../firebaseConfig";
 
-export default function SignupScreen({ navigation }) {
-  const [name, setName] = useState("");
+const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("+1");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [address, setAddress] = useState("");
-  const [country, setCountry] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [buttonScale] = useState(new Animated.Value(1));
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
 
-  // 🔹 Real-time validation errors
-  const [emailError, setEmailError] = useState("");
-  const [phoneError, setPhoneError] = useState("");
-
-  // 🔹 Validation Functions
-  const validateEmail = (text) => {
-    setEmail(text);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    setEmailError(emailRegex.test(text) ? "" : "Enter a valid email address.");
-  };
-
-  const validatePhoneNumber = (text) => {
-    setPhoneNumber(text);
-    const phoneRegex = /^[0-9]{7,15}$/;
-    setPhoneError(
-      phoneRegex.test(text) ? "" : "Enter a valid phone number (7-15 digits)."
-    );
-  };
-
-  const validateFields = () => {
-    if (!name.trim()) return "Full Name is required.";
-    if (emailError) return emailError;
-    if (phoneError) return phoneError;
-    if (password !== confirmPassword) return "Passwords do not match.";
-    if (!address.trim()) return "Address is required.";
-    if (!country.trim()) return "Country is required.";
-    return null;
-  };
-
-  // 🔹 Handle Signup
-  const handleSignup = async () => {
-    const validationError = validateFields();
-    if (validationError) {
-      Alert.alert("Error", validationError);
+  const handleSignup = () => {
+    if (!name || !email || !password || !phone) {
+      Alert.alert("Error", "All fields are required");
       return;
     }
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-
-      await setDoc(doc(collection(db, "users"), user.uid), {
-        uid: user.uid,
-        name,
-        email,
-        phoneNumber: `${countryCode} ${phoneNumber}`,
-        address,
-        country,
-      });
-
-      Alert.alert("Success", "Account created successfully!", [
-        {
-          text: "OK",
-          onPress: () => navigation.replace("Home"),
-        },
-      ]);
-    } catch (error) {
-      let message = "Something went wrong. Please try again.";
-
-      if (error.code === "auth/email-already-in-use") {
-        message =
-          "This email is already registered. Please use a different one or log in.";
-      } else if (error.code === "auth/invalid-email") {
-        message = "Invalid email address.";
-      } else if (error.code === "auth/weak-password") {
-        message = "Password should be at least 6 characters.";
-      }
-
-      Alert.alert("Signup Failed", message);
+    if (!/^\d{10}$/.test(phone)) {
+      Alert.alert("Error", "Please enter a valid 10-digit phone number");
+      return;
     }
-  };
-
-  const handlePressIn = () => {
-    Animated.spring(buttonScale, {
-      toValue: 0.95,
-      useNativeDriver: true,
-    }).start();
-  };
-  const handlePressOut = () => {
-    Animated.spring(buttonScale, {
-      toValue: 1,
-      friction: 3,
-      useNativeDriver: true,
-    }).start();
+    navigation.navigate("OTP", { phone });
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Create an Account</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Create Account</Text>
 
-        {}
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="person-outline"
-            size={22}
-            color="#3498db"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Full Name"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-            style={styles.input}
-          />
-        </View>
+      <TextInput
+        style={styles.input}
+        placeholder="Full Name *"
+        value={name}
+        onChangeText={setName}
+      />
 
-        {}
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="mail-outline"
-            size={22}
-            color="#3498db"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Email Address"
-            value={email}
-            onChangeText={validateEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={styles.input}
-          />
-        </View>
-        {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+      <TextInput
+        style={styles.input}
+        placeholder="Email *"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
 
-        {}
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="call-outline"
-            size={22}
-            color="#3498db"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="+1"
-            value={countryCode}
-            onChangeText={setCountryCode}
-            style={styles.countryCodeInput}
-            keyboardType="phone-pad"
-          />
-          <TextInput
-            placeholder="Phone Number"
-            value={phoneNumber}
-            onChangeText={validatePhoneNumber}
-            keyboardType="phone-pad"
-            style={styles.phoneInput}
-          />
-        </View>
-        {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number *"
+        value={phone}
+        onChangeText={setPhone}
+        keyboardType="phone-pad"
+        maxLength={10}
+      />
 
-        {}
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="location-outline"
-            size={22}
-            color="#3498db"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Address"
-            value={address}
-            onChangeText={setAddress}
-            autoCapitalize="words"
-            style={styles.input}
-          />
-        </View>
+      <TextInput
+        style={styles.input}
+        placeholder="Password *"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
 
-        {}
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="earth-outline"
-            size={22}
-            color="#3498db"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Country"
-            value={country}
-            onChangeText={setCountry}
-            autoCapitalize="words"
-            style={styles.input}
-          />
-        </View>
+      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
 
-        {}
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="lock-closed-outline"
-            size={22}
-            color="#3498db"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            style={styles.input}
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Ionicons
-              name={showPassword ? "eye-outline" : "eye-off-outline"}
-              size={22}
-              color="#3498db"
-            />
-          </TouchableOpacity>
-        </View>
-
-        {}
-        <View style={styles.inputContainer}>
-          <Ionicons
-            name="lock-closed-outline"
-            size={22}
-            color="#3498db"
-            style={styles.icon}
-          />
-          <TextInput
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry={!showConfirmPassword}
-            style={styles.input}
-          />
-          <TouchableOpacity
-            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-          >
-            <Ionicons
-              name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
-              size={22}
-              color="#3498db"
-            />
-          </TouchableOpacity>
-        </View>
-
-        <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-          <TouchableOpacity
-            style={styles.signupButton}
-            onPress={handleSignup}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-          >
-            <Text style={styles.signupButtonText}>Sign Up</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.loginText}>Already have an account? Login</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+        <Text style={styles.linkText}>Already have an account? Login</Text>
+      </TouchableOpacity>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ecf0f1",
-  },
-  scrollContainer: {
-    flexGrow: 1,
+    backgroundColor: "#fff",
     justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
+    padding: 20,
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#2c3e50",
     marginBottom: 20,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "#3498db",
-  },
-  icon: {
-    marginRight: 10,
+    textAlign: "center",
+    color: "#333",
   },
   input: {
-    flex: 1,
     height: 50,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    backgroundColor: "#fff",
   },
-  countryCodeInput: {
-    width: 50,
-    textAlign: "center",
-    borderRightWidth: 1,
-    borderRightColor: "#ccc",
-    marginRight: 10,
-  },
-  phoneInput: {
-    flex: 1,
-    height: 50,
-  },
-  errorText: {
-    color: "red",
-    fontSize: 14,
-    alignSelf: "flex-start",
-    marginBottom: 5,
-    marginLeft: 5,
-  },
-  signupButton: {
-    width: "90%",
-    height: 50,
-    backgroundColor: "#3498db",
-    justifyContent: "center",
+  button: {
+    backgroundColor: "#007AFF",
+    padding: 15,
+    borderRadius: 5,
     alignItems: "center",
-    borderRadius: 10,
-    marginTop: 15,
+    marginBottom: 20,
   },
-  signupButtonText: {
+  buttonText: {
     color: "#fff",
-    fontSize: 18,
     fontWeight: "bold",
-  },
-  loginText: {
-    marginTop: 15,
-    color: "#2c3e50",
     fontSize: 16,
   },
+  linkText: {
+    color: "#007AFF",
+    textAlign: "center",
+  },
+  required: {
+    color: "red",
+    fontSize: 12,
+    marginLeft: 5,
+  },
 });
+
+export default SignupScreen;
