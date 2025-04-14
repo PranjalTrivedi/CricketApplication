@@ -1,6 +1,7 @@
 import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
+import NavigationHeader from "../components/NavigationHeader";
 import AuthSelectionScreen from "../screens/AuthSelectionScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignupScreen from "../screens/SignupScreen";
@@ -15,7 +16,12 @@ const Drawer = createDrawerNavigator();
 export default function AppNavigator() {
   return (
     <NavigationContainer>
-      <Drawer.Navigator initialRouteName="Feed">
+      <Drawer.Navigator
+        initialRouteName="Feed"
+        screenOptions={({ navigation }) => ({
+          header: () => <NavigationHeader navigation={navigation} />,
+        })}
+      >
         <Drawer.Screen name="Feed" component={FeedScreen} />
         <Drawer.Screen name="Teams" component={TeamsScreen} />
         <Drawer.Screen name="Players" component={PlayersScreen} />
