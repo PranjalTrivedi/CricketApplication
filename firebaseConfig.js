@@ -12,13 +12,11 @@ const firebaseConfig = {
   appId: "1:638139218780:web:7e0c687f6a3a5e30951f99",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// ✅ Use AsyncStorage to persist authentication state
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-  popupRedirectResolver: undefined, // Fix possible error related to auth resolver
+  popupRedirectResolver: undefined,
 });
 
 const db = getFirestore(app);
