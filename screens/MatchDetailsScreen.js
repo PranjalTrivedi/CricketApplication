@@ -18,10 +18,23 @@ const MatchDetailsScreen = ({ route }) => {
     fetchMatch();
   }, [matchId]);
 
+  const calculateResult = () => {
+    const team1Score = parseInt(match.team1Score);
+    const team2Score = parseInt(match.team2Score);
+
+    if (team1Score > team2Score) {
+      return `${match.team1} won by ${team1Score - team2Score} runs`;
+    } else if (team2Score > team1Score) {
+      return `${match.team2} won by ${team2Score - team1Score} runs`;
+    } else {
+      return "Match Drawn";
+    }
+  };
+
   if (!match)
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <Text style={styles.detail}>Loading...</Text>
       </View>
     );
 
@@ -42,6 +55,10 @@ const MatchDetailsScreen = ({ route }) => {
         <Text style={styles.detail}>Venue: {match.venue}</Text>
         <Text style={styles.detail}>Date: {match.date}</Text>
         <Text style={styles.detail}>Result: {match.result}</Text>
+      </View>
+
+      <View style={styles.resultContainer}>
+        <Text style={styles.finalResult}>Final Result: {calculateResult()}</Text>
       </View>
     </View>
   );
@@ -90,6 +107,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#FFFFFF",
     marginBottom: 10,
+  },
+  resultContainer: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "#0f3811",
+    borderRadius: 10,
+  },
+  finalResult: {
+    color: "limegreen",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 

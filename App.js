@@ -1,18 +1,18 @@
-import "react-native-gesture-handler";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { StyleSheet } from "react-native";
-import AppNavigator from "./navigation/AppNavigator";
+import React, { useState } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./navigation";
+import SplashScreenComponent from "./screens/SplashScreenComponent";
 
 export default function App() {
+  const [isAppReady, setIsAppReady] = useState(false);
+
+  if (!isAppReady) {
+    return <SplashScreenComponent onFinish={() => setIsAppReady(true)} />;
+  }
+
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <NavigationContainer>
       <AppNavigator />
-    </GestureHandlerRootView>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
