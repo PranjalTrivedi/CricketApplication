@@ -9,7 +9,7 @@ const firebaseConfig = {
   projectId: "cricket-ed667",
   storageBucket: "cricket-ed667.firebasestorage.app",
   messagingSenderId: "638139218780",
-  appId: "1:638139218780:web:7e0c687f6a3a5e30951f99"
+  appId: "1:638139218780:web:7e0c687f6a3a5e30951f99",
 };
 
 // Initialize Firebase
@@ -24,4 +24,3 @@ const auth = initializeAuth(app, {
 const db = getFirestore(app);
 
 export { auth, db };
-

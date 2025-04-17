@@ -1,82 +1,61 @@
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useRef, useState } from "react";
-import { Animated, Easing, StyleSheet, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, StyleSheet, View, Image } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function SplashScreenComponent({ onFinish }) {
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
-  const textOpacityAnim = useRef(new Animated.Value(0)).current;
-  const textTranslateY = useRef(new Animated.Value(10)).current;
-
-  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
 
   useEffect(() => {
-    const startAnimation = () => {
-      Animated.sequence([
-        Animated.parallel([
-          Animated.timing(scaleAnim, {
-            toValue: 1.2,
-            duration: 1200,
-            easing: Easing.out(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacityAnim, {
+    const prepare = async () => {
+      try {
+        // Keep splash screen visible
+        await SplashScreen.preventAutoHideAsync();
+
+        // Start animation after 500ms
+        const timer = setTimeout(() => {
+          Animated.spring(scaleAnim, {
             toValue: 1,
-            duration: 1200,
-            easing: Easing.out(Easing.ease),
+            friction: 1,
             useNativeDriver: true,
-          }),
-        ]),
-        Animated.parallel([
-          Animated.timing(textOpacityAnim, {
-            toValue: 1,
-            duration: 1000,
-            easing: Easing.out(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(textTranslateY, {
-            toValue: 0,
-            duration: 1000,
-            easing: Easing.out(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ]),
-      ]).start(() => {
-        setTimeout(async () => {
-          await SplashScreen.hideAsync();
-          setIsAnimationComplete(true);
-          onFinish();
-        }, 1000);
-      });
+          }).start();
+        }, 500);
+
+        // Wait minimum 3 seconds then hide splash
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Tell the application to render
+        onFinish();
+        await SplashScreen.hideAsync();
+      }
     };
 
-    setTimeout(startAnimation, 100);
+    prepare();
   }, []);
-
-  if (isAnimationComplete) return null;
 
   return (
     <View style={styles.container}>
       <Animated.Image
         source={require("../assets/CricketIcon.png")}
         style={[
-          styles.logo,
-          { transform: [{ scale: scaleAnim }], opacity: opacityAnim },
-        ]}
-      />
-      <Animated.Text
-        style={[
-          styles.appName,
+          styles.image,
           {
-            opacity: textOpacityAnim,
-            transform: [{ translateY: textTranslateY }],
+            transform: [{ scale: scaleAnim }],
+            opacity: opacityAnim,
           },
         ]}
-      >
-        Live Cricket
-      </Animated.Text>
+        onLoadEnd={() => {
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }).start();
+        }}
+      />
     </View>
   );
 }
@@ -84,21 +63,13 @@ export default function SplashScreenComponent({ onFinish }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#fff",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    justifyContent: "center",
   },
-  logo: {
+  image: {
     width: 200,
     height: 200,
     resizeMode: "contain",
-  },
-  appName: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#e67e22",
-    marginTop: 20,
-    textTransform: "uppercase",
-    letterSpacing: 2,
   },
 });
